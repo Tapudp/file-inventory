@@ -1,0 +1,5 @@
+/drive-app/node_modules
+/drive-service/node_modules
+
+*-lock.json
+*.DS_Store
