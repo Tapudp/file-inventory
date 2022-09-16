@@ -36,13 +36,13 @@ const DeleteBtnContainer = styled.div`
 `;
 
 export default function FolderContainer() {
-    const { state: { listOfFiles, currentPathId }, updatePathForUser, deleteFile } = useAppContext();
+    const { listOfFiles, currentPathId, updatePathForUser, deleteFile } = useAppContext();
 
     if (listOfFiles.length < 1) {
         return <FolderWrapper> Start creating new file/objects </FolderWrapper>
     }
 
-    const filesToRender = listOfFiles.filter(file => file.parentPathId === currentPathId);
+    const filesToRender = listOfFiles.filter(file => file.parentId === currentPathId);
 
     if (filesToRender.length < 1) {
         return <FolderWrapper>Start creating new file/objects inside this folder</FolderWrapper>

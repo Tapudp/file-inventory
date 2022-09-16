@@ -67,7 +67,7 @@ export default function AddContainer() {
     const [err, setErr] = useState('');
     const [itemDetails, setItemDetails] = useState(() => DEFAULT_FILE_DETAILS);
 
-    const { state, updatePathForUser, addFileToDrive } = useAppContext();
+    const { listOfFiles, currentPath, currentPathId, rootPath, rootPathId, updatePathForUser, addFileToDrive } = useAppContext();
 
     const openModal = () => {
         toggle(true);
@@ -94,28 +94,28 @@ export default function AddContainer() {
 
     const submitNewObject = () => {
         setErr('');
-        const fileWithTheSameName = state.listOfFiles.find(item => item.fileName === itemDetails.fileName);
+        const fileWithTheSameName = listOfFiles.find(item => item.fileName === itemDetails.fileName);
         if (fileWithTheSameName) {
             setErr('File already exists with this name, please try something different!');
             return;
         }
 
         const newPathId = uuidv4();
-        const fileDetailsToPush = { ...itemDetails, parentPath: state.currentPath, parentPathId: state.currentPathId, ownPathId: newPathId };
+        const fileDetailsToPush = { ...itemDetails, parentPath: currentPath, parentPathId: currentPathId, ownPathId: newPathId };
         setErr('');
         addFileToDrive(fileDetailsToPush);
         closeModal();
     }
 
     return <Wrapper>
-        {state.currentPath !== state.rootPath &&
+        {currentPath !== rootPath &&
             <PathWrapper
-                onClick={() => updatePathForUser(state.rootPath, state.rootPathId)}
+                onClick={() => updatePathForUser(rootPath, rootPathId)}
             >
                 {'<-'} Go back to root
             </PathWrapper>
         }
-        <PathWrapper>Current path : {state.currentPath === state.rootPath ? 'root' : state.currentPath}</PathWrapper>
+        <PathWrapper>Current path : {currentPath === rootPath ? 'root' : currentPath}</PathWrapper>
         <AddButton onClick={openModal}>Add to drive</AddButton>
         <Modal show={show} handleClose={closeModal}>
             <CreateObjectContainer>

@@ -19,15 +19,32 @@ async function baseApiService({ url = '', method = 'GET', data = {} }) {
 }
 
 let FileService = {
-    async getListOfFiles() {
-        let response = await baseApiService({ url: `${fileAPIUrl}/files` });
-        console.log('<><><>backend fetched this<><>', response)
+    async pingToServer() {
+        try {
+            let response = await baseApiService({ url: `${fileAPIUrl}/` });
 
-        if (!response.error) {
+            if (response.error !== null) {
+                throw new Error('Server seems to be down!');
+            }
+
             return response;
+        } catch (e) {
+            throw new Error('front-end service function might have some issue :: pingToServer', e);
         }
+    },
 
-        throw new Error('API call to backend fialed');
+    async getListOfFiles() {
+        try {
+            let response = await baseApiService({ url: `${fileAPIUrl}/files` });
+
+            if (response.error !== null) {
+                throw new Error('API call to backend fialed');
+            }
+            return response;
+
+        } catch (e) {
+            throw new Error('front-end service function might have some issue :: getListOfFiles', e)
+        }
     },
 }
 
