@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 
 
 router.get('/files', (req, res) => {
-    console.log('>>>> /files get route has been called', req.params);
+    console.log('>>>> /files get route has been called', req.body);
     const sqlSelect = 'SELECT * FROM drivefiles;';
     db.query(sqlSelect, (err, result) => {
         if (err) {
@@ -22,32 +22,45 @@ router.get('/files', (req, res) => {
     });
 });
 
-router.post('/files/insert', (req, res) => {
-    console.log('>>>> /files/insert post route has been called', req.params);
-    const rootId = uuidv4();
-    const newFileId = uuidv4();
-    // const sqlInsert = `INSERT INTO drivefiles (id, fileName, fileContent, isFolder, parentPathId) VALUES (UUID_TO_BIN(UUID()), 'firstFile', 'firstContent', true, UUID_TO_BIN(UUID()));`
-    const sqlInsert = `INSERT INTO drivefiles (selfPathId, fileName, fileContent, isFolder, parentPathId) VALUES ('${newFileId}', 'firstFile', 'firstContent', true, '${rootId}');`
+router.post('/files/create', (req, res) => {
+    console.log('>>>> /files/insert post route has been called', req.body);
+    if (!req.body || !req.body.fileName || !req.body.fileType || !req.body.newFileId) {
+        res.status(400).json({
+            error: {
+                message: 'fileName, fileType, newFileId fields are required to process this query. One of them was missing.'
+            }
+        })
+        throw new Error('fileName, fileType, newFileId fields are required to process this query. One of them was missing.');
+    }
+
+    const { fileName, fileContent, fileType, fileParentId, newFileId } = req.body;
+
+    const isFolder = fileType === 'folder';
+    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, fileId) VALUES ('${fileName}', '${fileContent}', ${isFolder}, '${fileParentId}', '${newFileId}');`
 
     db.query(sqlInsert, (err, result) => {
         if (err) {
             console.error("<><>sql query failed<><>", err);
             res.status(500).json({ error: err, data: null });
         }
-        res.status(200).json({
-            error: null,
-            data: {
-                fileCreated: true,
-                fileDetails: {
-                    selfPathId: newFileId,
-                    fileName: 'firstFile',
-                    fileContent: 'firstContent',
-                    isFolder: true,
-                    parentPathId: rootId
+        try {
+            res.status(200).json({
+                error: null,
+                data: {
+                    fileCreated: true,
+                    fileDetails: {
+                        fileId: newFileId,
+                        fileName,
+                        fileContent,
+                        isFolder,
+                        parentId: fileParentId
+                    }
                 }
-            }
-        });
-        console.log("<><> made this query <><>", sqlInsert);
+            });
+            console.log("<><> this query was successful <><>", sqlInsert);
+        } catch (e) {
+            console.error('<><> there was some error while making this query <><>', sqlInsert, e);
+        }
     })
 });
 
