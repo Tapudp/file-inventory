@@ -104,7 +104,7 @@ export default function AddContainer() {
         const fileDetailsToPush = {
             ...itemDetails,
             parentPath: currentPath,
-            parentId: currentPathId,
+            fileParentId: currentPathId,
             newFileId
         };
         setErr('');

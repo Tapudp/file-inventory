@@ -5,9 +5,9 @@ import FileService from '../services/fileService';
 
 const getDefaultState = () => ({
     currentPath: '/',
-    currentPathId: null,
+    currentPathId: 'root',
     rootPath: '/',
-    rootPathId: null,
+    rootPathId: 'root',
     listOfFiles: TEMPLATE_FILES.map(it => ({ ...it, parentId: null, ownPathId: uuidv4() })),
 })
 
@@ -55,7 +55,7 @@ function AppContextProvider(props) {
     )
 
     React.useEffect(() => {
-        FileService.getListOfFiles().then(({ error, data }) => {
+        FileService.getListOfFiles({ currentPathId: state.rootPathId }).then(({ error, data }) => {
             if (error !== null) {
                 setAppError('Error :: while fetching list of files');
                 return;

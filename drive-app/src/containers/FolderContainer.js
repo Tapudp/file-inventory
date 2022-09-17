@@ -52,7 +52,7 @@ export default function FolderContainer() {
         <FolderWrapper>
             {
                 filesToRender.map((file, fileIdx) => (
-                    <div key={`${file.fileName}-{fileIdx}`}>
+                    <div key={`${file.fileId}-${fileIdx}`}>
                         <Folder
                             switchPath={() => updatePathForUser(file.fileName, file.ownPathId)}
                             {...file}

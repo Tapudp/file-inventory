@@ -33,9 +33,14 @@ let FileService = {
         }
     },
 
-    async getListOfFiles() {
+    async getListOfFiles({ currentPathId }) {
         try {
-            let response = await baseApiService({ url: `${fileAPIUrl}/files` });
+            let response = await baseApiService({
+                url: `${fileAPIUrl}/files?currentPathId=${currentPathId}`,
+                data: {
+                    currentPathId
+                }
+            });
 
             if (response.error !== null) {
                 throw new Error('API call to backend fialed');
