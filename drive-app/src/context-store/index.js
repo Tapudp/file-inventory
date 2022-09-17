@@ -3,24 +3,29 @@ import { TEMPLATE_FILES } from '../constants';
 import { v4 as uuidv4 } from 'uuid';
 import FileService from '../services/fileService';
 
-const getDefaultState = (rootId) => ({
+const getDefaultState = () => ({
     currentPath: '/',
-    currentPathId: rootId,
+    currentPathId: null,
     rootPath: '/',
-    rootPathId: rootId,
-    listOfFiles: TEMPLATE_FILES.map(it => ({ ...it, parentPathId: rootId, ownPathId: uuidv4() })),
+    rootPathId: null,
+    listOfFiles: TEMPLATE_FILES.map(it => ({ ...it, parentId: null, ownPathId: uuidv4() })),
 })
 
 const AppContext = React.createContext();
 
 function AppContextProvider(props) {
-    const rootId = uuidv4();
-    const [state, setState] = React.useState(getDefaultState(rootId));
+    const [state, setState] = React.useState(getDefaultState());
     const [appError, setAppError] = React.useState('');
 
     const updatePathForUser = (path, pathId) => setContext({ currentPath: path, currentPathId: pathId });
     const addFileToDrive = (fileDetails) => {
-        setContext({ listOfFiles: state.listOfFiles.concat(fileDetails) })
+        FileService.createNewFileObject(fileDetails).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setContext({ listOfFiles: state.listOfFiles.concat(fileDetails) })
+        });
     };
     const deleteFile = (fileDetails) => {
         const resultantList = state.listOfFiles.filter(it => it.ownPathId !== fileDetails.ownPathId);

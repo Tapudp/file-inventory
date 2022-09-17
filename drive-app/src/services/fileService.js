@@ -46,6 +46,30 @@ let FileService = {
             throw new Error('front-end service function might have some issue :: getListOfFiles', e)
         }
     },
+
+    async createNewFileObject(fileDetails = {
+        fileName: 'test-compulsary',
+        fileContent: 'test-nullable',
+        fileType: 'video-compulsary',
+        fileParentId: 'test-nullable',
+        newFileId: 'test-compulsary'
+    }) {
+        try {
+            let response = await baseApiService({
+                url: `${fileAPIUrl}/files/create`,
+                method: 'POST',
+                data: fileDetails
+            });
+
+            if (response.error !== null) {
+                throw new Error('There was an issue from service :: ', response.error);
+            }
+            return response;
+
+        } catch (e) {
+            throw new Error('front-end service function might have some issue :: getListOfFiles', e)
+        }
+    },
 }
 
 export default FileService;

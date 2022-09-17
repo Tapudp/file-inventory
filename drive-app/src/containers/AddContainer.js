@@ -100,8 +100,13 @@ export default function AddContainer() {
             return;
         }
 
-        const newPathId = uuidv4();
-        const fileDetailsToPush = { ...itemDetails, parentPath: currentPath, parentPathId: currentPathId, ownPathId: newPathId };
+        const newFileId = uuidv4();
+        const fileDetailsToPush = {
+            ...itemDetails,
+            parentPath: currentPath,
+            parentId: currentPathId,
+            newFileId
+        };
         setErr('');
         addFileToDrive(fileDetailsToPush);
         closeModal();
