@@ -75,6 +75,23 @@ let FileService = {
             throw new Error('front-end service function might have some issue :: getListOfFiles', e)
         }
     },
+
+    async removeFileObject({ fileId = '' }) {
+        try {
+            let response = await baseApiService({
+                url: `${fileAPIUrl}/files/remove?fileId=${fileId}`,
+                method: 'DELETE',
+            });
+
+            if (response.error !== null) {
+                throw new Error('There was an issue from service :: ', response.error);
+            }
+            return response;
+
+        } catch (e) {
+            throw new Error('front-end service function might have some issue :: getListOfFiles', e)
+        }
+    },
 }
 
 export default FileService;

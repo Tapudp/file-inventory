@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 router.get('/files', (req, res) => {
     console.log(':: ::', new Date().toISOString(), '>>>> /files get route has been called', req.query);
-    if (!req.body || !req.query.currentPathId) {
+    if (!req.query.currentPathId) {
         res.status(400).json({
             error: {
                 message: 'currentPathId field is required to process this query. It seems to be missing.'
@@ -64,6 +64,41 @@ router.post('/files/create', (req, res) => {
                         fileContent,
                         isFolder,
                         parentId: fileParentId
+                    }
+                }
+            });
+            console.log(':: ::', new Date().toISOString(), "<><> this query was successful <><>", sqlInsert);
+        } catch (e) {
+            console.error(':: ::', new Date().toISOString(), '<><> there was some error while making this query <><>', sqlInsert, e);
+        }
+    })
+});
+
+router.delete('/files/remove', (req, res) => {
+    console.log(':: ::', new Date().toISOString(), '>>>> /files/delete post route has been called', req.body);
+    if (!req.query) {
+        res.status(400).json({
+            error: {
+                message: 'File-id query seems to be missing in the query params.'
+            }
+        })
+        throw new Error('File-id query seems to be missing in the query params.');
+    }
+
+    const sqlInsert = `DELETE FROM drivefiles WHERE fileId = "${req.query.fileId}" OR parentId = "${req.query.fileId}";`
+
+    db.query(sqlInsert, (err, result) => {
+        if (err) {
+            console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err);
+            res.status(500).json({ error: err, data: null });
+        }
+        try {
+            res.status(202).json({
+                error: null,
+                data: {
+                    fileRemoved: true,
+                    fileDetails: {
+                        fileId: req.query.fileId,
                     }
                 }
             });

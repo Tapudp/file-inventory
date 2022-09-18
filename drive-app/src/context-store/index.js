@@ -19,18 +19,35 @@ function AppContextProvider(props) {
 
     const updatePathForUser = (path, pathId) => setContext({ currentPath: path, currentPathId: pathId });
     const addFileToDrive = (fileDetails) => {
+        setAppError('');
         FileService.createNewFileObject(fileDetails).then(({ error, data }) => {
             if (error !== null) {
                 setAppError('Error :: creating this new file object', error);
                 return;
             }
-            setContext({ listOfFiles: state.listOfFiles.concat(fileDetails) })
+            setAppError('');
+            const newList = [...state.listOfFiles, fileDetails];
+            setContext({ listOfFiles: newList });
+            getContextValue();
         });
     };
     const deleteFile = (fileDetails) => {
-        const resultantList = state.listOfFiles.filter(it => it.ownPathId !== fileDetails.ownPathId);
-        console.log('<><>result before delete<><>', resultantList);
-        setContext({ listOfFiles: resultantList })
+        setAppError('');
+        if (!fileDetails) {
+            // add toast to remind user to add file details
+            console.log(":: :: file details are required for it to be deleted");
+        }
+        FileService.removeFileObject({ fileId: fileDetails.fileId }).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setAppError('');
+            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileDetails.fileId);
+            console.log('<><>result before delete<><>', resultantList);
+            setContext({ listOfFiles: resultantList })
+            getContextValue();
+        });
     };
 
     // here we only re-create setContext when its dependencies change ([state, setState])
