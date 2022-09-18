@@ -46,7 +46,7 @@ router.post('/files/create', (req, res) => {
     const { fileName, fileContent, fileType, fileParentId, newFileId } = req.body;
 
     const isFolder = fileType === 'folder';
-    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, fileId) VALUES ('${fileName}', '${fileContent}', ${isFolder}, '${fileParentId}', '${newFileId}');`
+    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, fileId) VALUES ("${fileName.toString()}", "${fileContent.toString()}", ${isFolder}, "${fileParentId}", "${newFileId}");`
 
     db.query(sqlInsert, (err, result) => {
         if (err) {
@@ -85,9 +85,9 @@ router.delete('/files/remove', (req, res) => {
         throw new Error('File-id query seems to be missing in the query params.');
     }
 
-    const sqlInsert = `DELETE FROM drivefiles WHERE fileId = "${req.query.fileId}" OR parentId = "${req.query.fileId}";`
+    const sqlRemove = `DELETE FROM drivefiles WHERE fileId = "${req.query.fileId}" OR parentId = "${req.query.fileId}";`
 
-    db.query(sqlInsert, (err, result) => {
+    db.query(sqlRemove, (err, result) => {
         if (err) {
             console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err);
             res.status(500).json({ error: err, data: null });
@@ -102,9 +102,47 @@ router.delete('/files/remove', (req, res) => {
                     }
                 }
             });
-            console.log(':: ::', new Date().toISOString(), "<><> this query was successful <><>", sqlInsert);
+            console.log(':: ::', new Date().toISOString(), "<><> this query was successful <><>", sqlRemove);
         } catch (e) {
-            console.error(':: ::', new Date().toISOString(), '<><> there was some error while making this query <><>', sqlInsert, e);
+            console.error(':: ::', new Date().toISOString(), '<><> there was some error while making this query <><>', sqlRemove, e);
+        }
+    })
+});
+
+router.put('/files/update', (req, res) => {
+    console.log(':: ::', new Date().toISOString(), '>>>> /files/update put route has been called', req.body);
+    if (!req.body || !req.body.fileId || !req.body.destinationId) {
+        res.status(400).json({
+            error: {
+                message: 'File-id or destination-id seems to be missing in the request body.'
+            }
+        })
+        throw new Error('File-id or destination-id seems to be missing in the request body.');
+    }
+
+    // pre-assumed fixed that destination-id will be of type folder
+    // front-end design itself won't show video type objects as destinations
+    const sqlUpdate = `UPDATE drivefiles SET parentId = "${req.body.destinationId}" WHERE fileId = "${req.body.fileId}";`
+
+    db.query(sqlUpdate, (err, result) => {
+        if (err) {
+            console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err);
+            res.status(500).json({ error: err, data: null });
+        }
+        try {
+            res.status(204).json({
+                error: null,
+                data: {
+                    fileUpdated: true,
+                    fileDetails: {
+                        fileId: req.body.fileId,
+                        parentId: req.body.destinationId
+                    }
+                }
+            });
+            console.log(':: ::', new Date().toISOString(), "<><> this query was successful <><>", sqlUpdate);
+        } catch (e) {
+            console.error(':: ::', new Date().toISOString(), '<><> there was some error while making this query <><>', sqlUpdate, e);
         }
     })
 });
