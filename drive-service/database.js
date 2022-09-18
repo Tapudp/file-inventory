@@ -12,6 +12,7 @@ var pool = mysql.createPool({
 
 pool.getConnection((err, connection) => {
     if (err) throw err;
+    // var sql = "CREATE TABLE customers (id INT AUTO_INCREMENT, name VARCHAR(255), address VARCHAR(255))";
     console.log('<><><> mysql database is connected <><>]]]');
 });
 

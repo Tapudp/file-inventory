@@ -27,8 +27,14 @@ router.get('/files', (req, res) => {
             console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err)
             res.status(500).json({ error: err, data: null });
         }
-        console.log(':: ::', new Date().toISOString(), "<><> made this query <><>", sqlSelect, result);
-        res.status(200).json({ error: null, data: result });
+        const finalResult = result.map((it, idx) => {
+            return Object.assign({}, it, {
+                // isFolder: !!Number(response.isChecked), // OR
+                isFolder: Boolean(Number(it.isFolder))
+            });
+        })
+        console.log(':: ::', new Date().toISOString(), "<><> made this query <><>", sqlSelect, finalResult);
+        res.status(200).json({ error: null, data: finalResult });
     });
 });
 

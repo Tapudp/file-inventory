@@ -5,6 +5,11 @@ import styled from 'styled-components';
 import Modal from '../components/Modal';
 import { DEFAULT_FILE_DETAILS, DEFAULT_OBJECT_TYPES } from '../constants';
 import { useAppContext } from '../context-store';
+import CreateObjectContainer from '../components/CreateObjectContainer';
+import StyledFormField from '../components/StyledFormField';
+import StyledInput from '../components/StyledInput';
+import StyledSelect from '../components/StyledSelect';
+import ErrorBanner from '../components/ErrorBanner';
 
 const Wrapper = styled.div`
     display: flex;
@@ -13,44 +18,22 @@ const Wrapper = styled.div`
     justify-content: flex-start;
 `;
 
-const CreateObjectContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
-    margin: 10px 10px;
-`;
-
-const StyledFormField = styled.div`
-    display: flex;
-    align-items: center;
-    width: 20rem;
-    justify-content: space-between;
-    margin: 10px;
-`;
-
-const StyledInput = styled.input`
-    padding: 10px;
-    margin: 1px;
-`;
-
-const StyledSelect = styled.select`
-    padding: 10px;
-`;
-
-const ErrorBanner = styled.div`
-    background-color: ${(props) => props.bannerColor};
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 15px;
-`;
-
-const AddButton = styled.div`
+const AddButton = styled.button`
     cursor: pointer;
     padding: 10px;
     background-color: #8852CC;
     color: #fff;
     font-weight: 600;
+`;
+
+const SubmitButton = styled.button`
+    cursor: pointer;
+    padding: 10px;
+    background-color: #8852CC;
+    color: #fff;
+    font-weight: 600;
+    width: 100px;
+    margin: 20px 0 0 0;
 `;
 
 const PathWrapper = styled.div`
@@ -141,9 +124,9 @@ export default function AddContainer() {
                         ))}
                     </StyledSelect>
                 </StyledFormField>
-                <button onClick={submitNewObject} disabled={err}>
+                <SubmitButton onClick={submitNewObject} disabled={err}>
                     Submit
-                </button>
+                </SubmitButton>
                 <ErrorBanner bannerColor={err !== '' ? '#FAA0A0' : null}>
                     {err}
                 </ErrorBanner>

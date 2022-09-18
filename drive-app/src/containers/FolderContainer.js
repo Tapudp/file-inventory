@@ -1,7 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context-store';
 import Folder from '../components/Folder';
 import styled from 'styled-components';
+import CreateObjectContainer from '../components/CreateObjectContainer';
+import StyledFormField from '../components/StyledFormField';
+import StyledInput from '../components/StyledInput';
+import StyledSelect from '../components/StyledSelect';
+import ErrorBanner from '../components/ErrorBanner';
+import Modal from '../components/Modal';
 
 const FolderWrapper = styled.div`
     display: grid;
@@ -23,19 +29,46 @@ const DeleteBtnContainer = styled.div`
     position: relative;
     top: -3rem;
     z-index: 9;
+`;
 
-    button {
-        border: 2px solid #EB6767;
-        background-color: #EB6767;
-        padding: 10px;
-        color: #fff;
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-    }
+const StyledButton = styled.button`
+    border: 2px solid ${(props) => props.buttonColor};
+    border-radius: 20%;
+    background-color: ${(props) => props.buttonColor};
+    padding: 10px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0 10px 0 0;
+`;
+
+const SubmitButton = styled.button`
+    cursor: pointer;
+    padding: 10px;
+    background-color: #8852CC;
+    color: #fff;
+    font-weight: 600;
+    width: 100px;
+    margin: 20px 0 0 0;
 `;
 
 export default function FolderContainer() {
+    const [show, toggle] = useState(false);
+    const [err, setErr] = useState('');
+    const [selectedFileDetails, setSelectedFileDetails] = useState(null);
+
+    const openModal = (e, fileDetails) => {
+        console.log(':: :: :: ', fileDetails);
+        setSelectedFileDetails(fileDetails);
+        toggle(true);
+    }
+
+    const closeModal = (e) => {
+        if (e) e.stopPropagation();
+        toggle(false);
+    }
+
     const { listOfFiles, currentPathId, updatePathForUser, deleteFile } = useAppContext();
 
     if (listOfFiles.length < 1) {
@@ -48,21 +81,75 @@ export default function FolderContainer() {
         return <FolderWrapper>Start creating new file/objects inside this folder</FolderWrapper>
     }
 
+    const folderList = filesToRender.filter(file => file.isFolder === true).concat({
+        fileId: 'root',
+        fileName: 'Root-path'
+    })
+
     return (
         <FolderWrapper>
             {
                 filesToRender.map((file, fileIdx) => (
                     <div key={`${file.fileId}-${fileIdx}`}>
                         <Folder
-                            switchPath={() => updatePathForUser(file.fileName, file.ownPathId)}
+                            switchPath={() => updatePathForUser(file.fileName, file.fileId)}
                             {...file}
                         />
                         <DeleteBtnContainer>
-                            <button onClick={() => deleteFile(file)}>Delete</button>
+                            <StyledButton
+                                buttonColor='#8A78FA'
+                                className='move-button'
+                                onClick={(e) => openModal(e, file)}
+                            >
+                                Move
+                            </StyledButton>
+                            <StyledButton
+                                buttonColor='#EB6767'
+                                className='delete-button'
+                                onClick={(e) => {
+                                    if (e) e.stopPropagation();
+                                    deleteFile(file)
+                                }}
+                            >
+                                Delete
+                            </StyledButton>
                         </DeleteBtnContainer>
                     </div>
                 ))
             }
+
+            <Modal show={show} handleClose={closeModal}>
+                {selectedFileDetails ? <CreateObjectContainer>
+                    <StyledFormField>
+                        <p className='field-title'>File Name</p>
+                        <p className='field-text'>{selectedFileDetails?.fileName || ''}</p>
+                    </StyledFormField>
+                    <StyledFormField>
+                        <p className='field-title'>File Content</p>
+                        <p className='field-text'>{selectedFileDetails?.fileContent || ''}</p>
+                    </StyledFormField>
+                    <StyledFormField>
+                        <p className='field-title'>File Type</p>
+                        <p className='field-text'>{selectedFileDetails?.fileType ? 'Folder' : 'Video' || ''}</p>
+                    </StyledFormField>
+                    <StyledFormField>
+                        <p className='field-title'>New destination</p>
+                        <StyledSelect>
+                            <option value="">Select a new parent folder</option>
+                            {folderList.map((file, idx) => (
+                                <option key={`${file.fileId}-${idx}`} value={file.fileId}>{file.fileName}</option>
+                            ))}
+                        </StyledSelect>
+                    </StyledFormField>
+                    {/* <button onClick={submitNewObject} disabled={err}> */}
+                    <SubmitButton>
+                        Move
+                    </SubmitButton>
+                    <ErrorBanner bannerColor={err !== '' ? '#FAA0A0' : null}>
+                        {err}
+                    </ErrorBanner>
+                </CreateObjectContainer> : null}
+            </Modal>
         </FolderWrapper>
     )
 }

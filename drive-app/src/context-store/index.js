@@ -2,6 +2,18 @@ import React from 'react';
 import { TEMPLATE_FILES } from '../constants';
 import { v4 as uuidv4 } from 'uuid';
 import FileService from '../services/fileService';
+import styled from 'styled-components';
+
+const LoadingContainer = styled.div`
+    display: flex;
+    margin: auto;
+    width: 95vw;
+    height: 90vh;
+    align-items: center;
+    justify-content: center;
+    background-color: #E8E7EA;
+    font-size: 20px;
+`;
 
 const getDefaultState = () => ({
     currentPath: '/',
@@ -16,6 +28,7 @@ const AppContext = React.createContext();
 function AppContextProvider(props) {
     const [state, setState] = React.useState(getDefaultState());
     const [appError, setAppError] = React.useState('');
+    const [isLoading, setLoader] = React.useState(false);
 
     const updatePathForUser = (path, pathId) => setContext({ currentPath: path, currentPathId: pathId });
     const addFileToDrive = (fileDetails) => {
@@ -82,7 +95,7 @@ function AppContextProvider(props) {
     }, []);
     return (
         <AppContext.Provider value={getContextValue()}>
-            {props.children}
+            {isLoading ? <LoadingContainer>L o a d i n g . . .</LoadingContainer> : props.children}
         </AppContext.Provider>
     )
 
