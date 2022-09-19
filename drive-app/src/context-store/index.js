@@ -39,66 +39,6 @@ function AppContextProvider(props) {
 
     const navigate = useNavigate();
 
-    const updatePathForUser = (path, pathId) => {
-        setContext({
-            parentPath: state.parentPath,
-            parentPathId: state.parentPathId,
-            currentPathId: pathId,
-            currentPath: path
-        })
-        navigate(pathId === 'root' ? '/' : `/${pathId}`)
-    };
-
-    const addFileToDrive = (fileDetails) => {
-        setAppError('');
-        FileService.createNewFileObject(fileDetails).then(({ error, data }) => {
-            if (error !== null) {
-                setAppError('Error :: creating this new file object', error);
-                return;
-            }
-            setAppError('');
-            const newList = [...state.listOfFiles, fileDetails];
-            setContext({ listOfFiles: newList });
-            getContextValue();
-        });
-    };
-
-    const deleteFile = (fileDetails) => {
-        setAppError('');
-        if (!fileDetails) {
-            // add toast to remind user to add file details
-            console.log(":: :: file details are required for it to be deleted");
-        }
-        FileService.removeFileObject({ fileId: fileDetails.fileId }).then(({ error, data }) => {
-            if (error !== null) {
-                setAppError('Error :: creating this new file object', error);
-                return;
-            }
-            setAppError('');
-            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileDetails.fileId);
-            console.log('<><>result before delete<><>', resultantList);
-            setContext({ listOfFiles: resultantList })
-        });
-    };
-
-    const updateFile = (fileId, destinationId) => {
-        setAppError('');
-        if (!fileId || !destinationId) {
-            // add toast to remind user to add file details
-            console.log(":: :: fileId, and destinationId are required for to move this folder");
-        }
-        FileService.updateFileObject({ fileId, destinationId }).then(({ error, data }) => {
-            if (error !== null) {
-                setAppError('Error :: creating this new file object', error);
-                return;
-            }
-            setAppError('');
-            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileId);
-            console.log('<><>result before moving the file<><>', resultantList);
-            setContext({ listOfFiles: resultantList })
-        });
-    }
-
     // here we only re-create setContext when its dependencies change ([state, setState])
     const setContext = React.useCallback(
         updates => {
@@ -115,14 +55,76 @@ function AppContextProvider(props) {
             setContext,
             updatePathForUser,
             addFileToDrive,
-            deleteFile
+            deleteFile,
+            updateFile
         }),
         [state, setContext],
     )
 
+    const updatePathForUser = (path, pathId, parentName, parentId) => {
+        setContext({
+            parentPath: parentName,
+            parentPathId: parentId,
+            currentPathId: pathId,
+            currentPath: path
+        })
+        navigate(pathId === 'root' ? '/' : `/${pathId}`)
+    };
+
+    const addFileToDrive = (fileDetails) => {
+        setAppError('');
+        if (!fileDetails) {
+            // add toast to remind user to add file details
+            alert(":: :: file details are required for it to be deleted");
+        }
+        FileService.createNewFileObject(fileDetails).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setAppError('');
+            const newList = state.listOfFiles.concat(fileDetails);
+            setContext({ listOfFiles: newList.filter(it => it) });
+        });
+    };
+
+    const deleteFile = (fileDetails) => {
+        setAppError('');
+        if (!fileDetails) {
+            // add toast to remind user to add file details
+            alert(":: :: file details are required for it to be deleted");
+        }
+        FileService.removeFileObject({ fileId: fileDetails.fileId }).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setAppError('');
+            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileDetails.fileId);
+            setContext({ listOfFiles: resultantList })
+        });
+    };
+
+    const updateFile = (fileId, destinationId, destinationName) => {
+        setAppError('');
+        if (!fileId || !destinationId || !destinationName) {
+            // add toast to remind user to add file details
+            alert(":: :: fileId, and destinationId are required for to move this folder");
+            return;
+        }
+        FileService.updateFileObject({ fileId, destinationId, destinationName }).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setAppError('');
+            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileId);
+            setContext({ listOfFiles: resultantList })
+        });
+    }
+
     React.useEffect(() => {
         const currentPathId = location.pathname === "/" ? "root" : location.pathname.replace('/', '');
-        console.log(':: :: :: ', currentPathId, state.currentPath, state.parentPath, state.parentPathId);
         setAppError('');
         FileService.getListOfFiles({ currentPathId }).then(({ error, data }) => {
             if (error !== null) {
@@ -130,7 +132,7 @@ function AppContextProvider(props) {
                 return;
             }
             if (data.length < 1) {
-                setContext({ listOfFiles: data, parentPath: '', parentPathId: '' });
+                setContext({ listOfFiles: data, parentPath: state.currentPath, parentPathId: currentPathId });
                 return;
             }
             setAppError('');

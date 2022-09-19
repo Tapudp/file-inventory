@@ -40,19 +40,18 @@ router.get('/files', (req, res) => {
 
 router.post('/files/create', (req, res) => {
     console.log(':: ::', new Date().toISOString(), '>>>> /files/insert post route has been called', req.body);
-    if (!req.body || !req.body.fileName || !req.body.fileType || !req.body.newFileId) {
+    if (!req.body || !req.body.fileName || !req.body.newFileId || !req.body.parentName) {
         res.status(400).json({
             error: {
-                message: 'fileName, fileType, newFileId fields are required to process this query. One of them was missing.'
+                message: 'fileName, isFolder, newFileId, parentName fields are required to process this query. One of them was missing.'
             }
         })
-        throw new Error('fileName, fileType, newFileId fields are required to process this query. One of them was missing.');
+        throw new Error('fileName, isFolder, newFileId, parentName fields are required to process this query. One of them was missing.');
     }
 
-    const { fileName, fileContent, fileType, fileParentId, newFileId } = req.body;
+    const { fileName, fileContent, isFolder, parentId, parentName, newFileId } = req.body;
 
-    const isFolder = fileType === 'folder';
-    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, fileId) VALUES ("${fileName.toString()}", "${fileContent.toString()}", ${isFolder}, "${fileParentId}", "${newFileId}");`
+    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, parentName, fileId) VALUES ("${fileName.toString()}", "${fileContent.toString()}", ${isFolder}, "${parentId}", "${parentName.toString()}", "${newFileId}");`
 
     db.query(sqlInsert, (err, result) => {
         if (err) {
@@ -69,7 +68,8 @@ router.post('/files/create', (req, res) => {
                         fileName,
                         fileContent,
                         isFolder,
-                        parentId: fileParentId
+                        parentId: parentId,
+                        parentName: parentName
                     }
                 }
             });
@@ -99,7 +99,7 @@ router.delete('/files/remove', (req, res) => {
             res.status(500).json({ error: err, data: null });
         }
         try {
-            res.status(202).json({
+            res.status(200).json({
                 error: null,
                 data: {
                     fileRemoved: true,
@@ -117,18 +117,18 @@ router.delete('/files/remove', (req, res) => {
 
 router.put('/files/update', (req, res) => {
     console.log(':: ::', new Date().toISOString(), '>>>> /files/update put route has been called', req.body);
-    if (!req.body || !req.body.fileId || !req.body.destinationId) {
+    if (!req.body || !req.body.fileId || !req.body.destinationId || !req.body.destinationName) {
         res.status(400).json({
             error: {
-                message: 'File-id or destination-id seems to be missing in the request body.'
+                message: 'File-id or destination-id or destination-name seems to be missing in the request body.'
             }
         })
-        throw new Error('File-id or destination-id seems to be missing in the request body.');
+        throw new Error('File-id or destination-id or destination-name seems to be missing in the request body.');
     }
 
     // pre-assumed fixed that destination-id will be of type folder
     // front-end design itself won't show video type objects as destinations
-    const sqlUpdate = `UPDATE drivefiles SET parentId = "${req.body.destinationId}" WHERE fileId = "${req.body.fileId}";`
+    const sqlUpdate = `UPDATE drivefiles SET parentId = "${req.body.destinationId}", parentName = "${req.body.destinationName}" WHERE fileId = "${req.body.fileId}";`
 
     db.query(sqlUpdate, (err, result) => {
         if (err) {
@@ -136,13 +136,14 @@ router.put('/files/update', (req, res) => {
             res.status(500).json({ error: err, data: null });
         }
         try {
-            res.status(204).json({
+            res.status(200).json({
                 error: null,
                 data: {
                     fileUpdated: true,
                     fileDetails: {
                         fileId: req.body.fileId,
-                        parentId: req.body.destinationId
+                        parentId: req.body.destinationId,
+                        parentName: req.body.destinationName
                     }
                 }
             });

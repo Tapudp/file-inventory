@@ -26,7 +26,7 @@ const AddButton = styled.button`
     color: #fff;
     font-weight: 600;
     justify-self: flex-end;
-    width: 15%;
+    width: 20%;
 `;
 
 const SubmitButton = styled.button`
@@ -44,7 +44,7 @@ export default function AddContainer() {
     const [err, setErr] = useState('');
     const [itemDetails, setItemDetails] = useState(() => DEFAULT_FILE_DETAILS);
 
-    const { listOfFiles, currentPath, currentPathId, addFileToDrive } = useAppContext();
+    const { listOfFiles, currentPath, currentPathId, parentPath, parentPathId, addFileToDrive } = useAppContext();
 
     const openModal = () => {
         toggle(true);
@@ -66,10 +66,15 @@ export default function AddContainer() {
     const fileTypeChange = (e) => {
         if (e) e.stopPropagation();
         if (e.target.value === '') return;
-        setItemDetails(p => ({ ...p, fileType: e.target.value }))
+        setItemDetails(p => ({ ...p, fileType: e.target.value, isFolder: e.target.value.toString().toLowerCase() === 'folder' }))
     }
 
     const submitNewObject = () => {
+        console.log(':: :: :: || ', itemDetails);
+        if (!itemDetails.fileName || !itemDetails.fileType || !itemDetails.fileContent) {
+            alert('All fields are required!!!');
+            return;
+        }
         setErr('');
         const fileWithTheSameName = listOfFiles.find(item => item.fileName === itemDetails.fileName);
         if (fileWithTheSameName) {
@@ -80,8 +85,8 @@ export default function AddContainer() {
         const newFileId = uuidv4();
         const fileDetailsToPush = {
             ...itemDetails,
-            parentPath: currentPath,
-            fileParentId: currentPathId,
+            parentName: parentPath,
+            parentId: currentPathId,
             newFileId
         };
         setErr('');
@@ -91,7 +96,7 @@ export default function AddContainer() {
 
     return <Wrapper>
         <PathDetails />
-        <AddButton onClick={openModal}>Add to drive</AddButton>
+        <AddButton onClick={openModal}>Create a new file</AddButton>
         <Modal
             show={show}
             handleClose={closeModal}

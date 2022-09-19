@@ -24,6 +24,7 @@ let FileService = {
             let response = await baseApiService({ url: `${fileAPIUrl}/` });
 
             if (response.error !== null) {
+                alert("Server seems to be down!")
                 throw new Error('Server seems to be down!');
             }
 
@@ -43,7 +44,8 @@ let FileService = {
             });
 
             if (response.error !== null) {
-                throw new Error('API call to backend fialed');
+                alert('API call to backend failed')
+                throw new Error('API call to backend failed');
             }
             return response;
 
@@ -55,7 +57,7 @@ let FileService = {
     async createNewFileObject(fileDetails = {
         fileName: 'test-compulsary',
         fileContent: 'test-nullable',
-        fileType: 'video-compulsary',
+        isFolder: 'video-compulsary',
         fileParentId: 'test-nullable',
         newFileId: 'test-compulsary'
     }) {
@@ -67,6 +69,7 @@ let FileService = {
             });
 
             if (response.error !== null) {
+                alert('There was an issue from service :: ')
                 throw new Error('There was an issue from service :: ', response.error);
             }
             return response;
@@ -84,6 +87,7 @@ let FileService = {
             });
 
             if (response.error !== null) {
+                alert('There was an issue from service :: ')
                 throw new Error('There was an issue from service :: ', response.error);
             }
             return response;
@@ -93,18 +97,20 @@ let FileService = {
         }
     },
 
-    async updateFileObject({ fileId = '', destinationId = '' }) {
+    async updateFileObject({ fileId = '', destinationId = '', destinationName = '' }) {
         try {
             let response = await baseApiService({
                 url: `${fileAPIUrl}/files/update`,
                 method: 'PUT',
                 data: {
                     fileId,
-                    destinationId
+                    destinationId,
+                    destinationName
                 }
             });
 
             if (response.error !== null) {
+                alert('There was an issue from service :: ')
                 throw new Error('There was an issue from service :: ', response.error);
             }
             return response;

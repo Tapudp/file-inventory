@@ -43,7 +43,7 @@ export default function PathDetails({ }) {
                     {'<-'} Go back to root
                 </PathWrapper>
             }
-            {parentPath !== '' && <PathWrapper>Current path : {currentPathId === rootPathId ? 'root' : parentPath}</PathWrapper>}
+            {parentPath !== '' && <PathWrapper>Current folder : {currentPathId === rootPathId ? 'root' : parentPath}</PathWrapper>}
         </PathContainer>
     )
 }

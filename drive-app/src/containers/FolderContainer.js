@@ -57,9 +57,9 @@ export default function FolderContainer() {
     const [show, toggle] = useState(false);
     const [err, setErr] = useState('');
     const [selectedFileDetails, setSelectedFileDetails] = useState(null);
+    const [destination, setDestination] = useState(null);
 
     const openModal = (e, fileDetails) => {
-        console.log(':: :: :: ', fileDetails);
         setSelectedFileDetails(fileDetails);
         toggle(true);
     }
@@ -69,7 +69,7 @@ export default function FolderContainer() {
         toggle(false);
     }
 
-    const { listOfFiles, currentPathId, updatePathForUser, deleteFile } = useAppContext();
+    const { listOfFiles, currentPathId, parentPath, parentPathId, updatePathForUser, deleteFile, updateFile } = useAppContext();
 
     if (listOfFiles.length < 1) {
         return <FolderWrapper> Start creating new file/objects </FolderWrapper>
@@ -84,7 +84,27 @@ export default function FolderContainer() {
     const folderList = filesToRender.filter(file => file.isFolder === true).concat({
         fileId: 'root',
         fileName: 'Root-path'
+    }, {
+        fileId: parentPathId,
+        fileName: parentPath
     })
+
+    const changeDestination = (e) => {
+        if (e) e.stopPropagation();
+        if (e.target.value === '') return;
+        const destinationFolder = folderList.filter(item => item.fileId === e.target.value);
+        if (destinationFolder.length < 1) return;
+        setDestination(destinationFolder[0]);
+    }
+
+    const moveFile = () => {
+        if (destination === null) {
+            alert("Destination folder details are required");
+            return;
+        }
+        updateFile(selectedFileDetails.fileId, destination.fileId, destination.fileName)
+        closeModal();
+    }
 
     return (
         <FolderWrapper>
@@ -92,7 +112,7 @@ export default function FolderContainer() {
                 filesToRender.map((file, fileIdx) => (
                     <div key={`${file.fileId}-${fileIdx}`}>
                         <Folder
-                            switchPath={() => updatePathForUser(file.fileName, file.fileId)}
+                            switchPath={() => updatePathForUser(file.fileName, file.fileId, file.parentName, file.parentId)}
                             {...file}
                         />
                         <DeleteBtnContainer>
@@ -138,15 +158,18 @@ export default function FolderContainer() {
                     </StyledFormField>
                     <StyledFormField>
                         <p className='field-title'>New destination</p>
-                        <StyledSelect>
+                        <StyledSelect selected={destination} onChange={changeDestination}>
                             <option value="">Select a new parent folder</option>
                             {folderList.map((file, idx) => (
-                                <option key={`${file.fileId}-${idx}`} value={file.fileId}>{file.fileName}</option>
+                                <option disabled={file.fileId === selectedFileDetails.fileId} key={`${file.fileId}-${idx}`} value={file.fileId}>{file.fileName}</option>
                             ))}
                         </StyledSelect>
                     </StyledFormField>
                     {/* <button onClick={submitNewObject} disabled={err}> */}
-                    <SubmitButton>
+                    <SubmitButton
+                        isDisabled={destination === null}
+                        onClick={moveFile}
+                    >
                         Move
                     </SubmitButton>
                     <ErrorBanner bannerColor={err !== '' ? '#FAA0A0' : null}>
