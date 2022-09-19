@@ -70,7 +70,6 @@ export default function AddContainer() {
     }
 
     const submitNewObject = () => {
-        console.log(':: :: :: || ', itemDetails);
         if (!itemDetails.fileName || !itemDetails.fileType || !itemDetails.fileContent) {
             alert('All fields are required!!!');
             return;

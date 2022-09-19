@@ -82,9 +82,6 @@ export default function FolderContainer() {
     }
 
     const folderList = filesToRender.filter(file => file.isFolder === true).concat({
-        fileId: 'root',
-        fileName: 'Root-path'
-    }, {
         fileId: parentPathId,
         fileName: parentPath
     })

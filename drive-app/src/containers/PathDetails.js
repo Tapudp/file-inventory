@@ -4,7 +4,7 @@ import { useAppContext } from '../context-store';
 
 const PathContainer = styled.div`
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     width: 50%;
 `;
 const PathWrapper = styled.div`
@@ -21,9 +21,9 @@ const PathWrapper = styled.div`
 export default function PathDetails({ }) {
 
     const {
-        previousPath,
-        previousPathId,
+        parentPathId,
         parentPath,
+        currentPath,
         currentPathId,
         rootPath,
         rootPathId,
@@ -35,15 +35,25 @@ export default function PathDetails({ }) {
             {
                 currentPathId !== rootPathId &&
                 <PathWrapper
-                    onClick={() => updatePathForUser(
-                        previousPath ? previousPath : rootPath,
-                        previousPathId ? previousPathId : rootPathId
-                    )}
+                    onClick={() => updatePathForUser(rootPath, rootPathId, '', '')}
                 >
-                    {'<-'} Go back to root
+                    🏠 Go to root
                 </PathWrapper>
             }
-            {parentPath !== '' && <PathWrapper>Current folder : {currentPathId === rootPathId ? 'root' : parentPath}</PathWrapper>}
+            {
+                parentPathId !== rootPathId && parentPath !== '' &&
+                <PathWrapper
+                    onClick={() => updatePathForUser(
+                        parentPath,
+                        parentPathId,
+                        '',
+                        ''
+                    )}
+                >
+                    Go up {parentPath}
+                </PathWrapper>
+            }
+            {currentPath !== '' && <PathWrapper>Current folder : {currentPathId === rootPathId ? 'root' : currentPath}</PathWrapper>}
         </PathContainer>
     )
 }

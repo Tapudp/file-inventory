@@ -62,6 +62,7 @@ function AppContextProvider(props) {
     )
 
     const updatePathForUser = (path, pathId, parentName, parentId) => {
+        console.log(" <><> ", parentName, " <><> ", parentId);
         setContext({
             parentPath: parentName,
             parentPathId: parentId,
@@ -131,13 +132,18 @@ function AppContextProvider(props) {
                 setAppError('Error :: while fetching list of files');
                 return;
             }
+
+            if (state.parentPath !== '' && state.parentPathId !== '') {
+                setContext({ listOfFiles: data })
+                return;
+            }
             if (data.length < 1) {
                 setContext({ listOfFiles: data, parentPath: state.currentPath, parentPathId: currentPathId });
                 return;
             }
             setAppError('');
             const { parentId, parentName } = data[0];
-            setContext({ listOfFiles: data, parentPath: parentName, parentPathId: parentId });
+            setContext({ listOfFiles: data, parentPath: '', parentPathId: '', currentPathId: parentId, currentPath: parentName });
         });
     }, [location.pathname]);
     return (
