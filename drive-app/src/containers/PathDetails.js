@@ -23,7 +23,7 @@ export default function PathDetails({ }) {
     const {
         previousPath,
         previousPathId,
-        currentPath,
+        parentPath,
         currentPathId,
         rootPath,
         rootPathId,
@@ -43,7 +43,7 @@ export default function PathDetails({ }) {
                     {'<-'} Go back to root
                 </PathWrapper>
             }
-            <PathWrapper>Current path : {currentPathId === rootPathId ? 'root' : currentPath}</PathWrapper>
+            {parentPath !== '' && <PathWrapper>Current path : {currentPathId === rootPathId ? 'root' : parentPath}</PathWrapper>}
         </PathContainer>
     )
 }

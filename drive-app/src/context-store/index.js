@@ -123,12 +123,19 @@ function AppContextProvider(props) {
     React.useEffect(() => {
         const currentPathId = location.pathname === "/" ? "root" : location.pathname.replace('/', '');
         console.log(':: :: :: ', currentPathId, state.currentPath, state.parentPath, state.parentPathId);
+        setAppError('');
         FileService.getListOfFiles({ currentPathId }).then(({ error, data }) => {
             if (error !== null) {
                 setAppError('Error :: while fetching list of files');
                 return;
             }
-            setContext({ listOfFiles: data });
+            if (data.length < 1) {
+                setContext({ listOfFiles: data, parentPath: '', parentPathId: '' });
+                return;
+            }
+            setAppError('');
+            const { parentId, parentName } = data[0];
+            setContext({ listOfFiles: data, parentPath: parentName, parentPathId: parentId });
         });
     }, [location.pathname]);
     return (
