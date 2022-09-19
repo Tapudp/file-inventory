@@ -118,7 +118,11 @@ export default function FolderContainer() {
                 ))
             }
 
-            <Modal show={show} handleClose={closeModal}>
+            <Modal
+                show={show}
+                handleClose={closeModal}
+                title="Move to another folder"
+            >
                 {selectedFileDetails ? <CreateObjectContainer>
                     <StyledFormField>
                         <p className='field-title'>File Name</p>

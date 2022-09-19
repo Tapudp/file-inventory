@@ -3,6 +3,7 @@ import { TEMPLATE_FILES } from '../constants';
 import { v4 as uuidv4 } from 'uuid';
 import FileService from '../services/fileService';
 import styled from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const LoadingContainer = styled.div`
     display: flex;
@@ -15,22 +16,39 @@ const LoadingContainer = styled.div`
     font-size: 20px;
 `;
 
-const getDefaultState = () => ({
-    currentPath: '/',
-    currentPathId: 'root',
-    rootPath: '/',
-    rootPathId: 'root',
-    listOfFiles: TEMPLATE_FILES.map(it => ({ ...it, parentId: null, ownPathId: uuidv4() })),
-})
+const getDefaultState = (pathFromUrl) => {
+    const calculatedPathId = pathFromUrl === "/" ? "root" : pathFromUrl.replace('/', '')
+    return {
+        parentPath: '',
+        parentPathId: '',
+        currentPath: '/',
+        currentPathId: calculatedPathId,
+        rootPath: '/',
+        rootPathId: 'root',
+        listOfFiles: TEMPLATE_FILES.map(it => ({ ...it, parentId: null, ownPathId: uuidv4() })),
+    }
+}
 
 const AppContext = React.createContext();
 
 function AppContextProvider(props) {
-    const [state, setState] = React.useState(getDefaultState());
+    const location = useLocation();
+    const [state, setState] = React.useState(getDefaultState(location.pathname));
     const [appError, setAppError] = React.useState('');
     const [isLoading, setLoader] = React.useState(false);
 
-    const updatePathForUser = (path, pathId) => setContext({ currentPath: path, currentPathId: pathId });
+    const navigate = useNavigate();
+
+    const updatePathForUser = (path, pathId) => {
+        setContext({
+            parentPath: state.parentPath,
+            parentPathId: state.parentPathId,
+            currentPathId: pathId,
+            currentPath: path
+        })
+        navigate(pathId === 'root' ? '/' : `/${pathId}`)
+    };
+
     const addFileToDrive = (fileDetails) => {
         setAppError('');
         FileService.createNewFileObject(fileDetails).then(({ error, data }) => {
@@ -44,6 +62,7 @@ function AppContextProvider(props) {
             getContextValue();
         });
     };
+
     const deleteFile = (fileDetails) => {
         setAppError('');
         if (!fileDetails) {
@@ -59,9 +78,26 @@ function AppContextProvider(props) {
             const resultantList = state.listOfFiles.filter(it => it.fileId !== fileDetails.fileId);
             console.log('<><>result before delete<><>', resultantList);
             setContext({ listOfFiles: resultantList })
-            getContextValue();
         });
     };
+
+    const updateFile = (fileId, destinationId) => {
+        setAppError('');
+        if (!fileId || !destinationId) {
+            // add toast to remind user to add file details
+            console.log(":: :: fileId, and destinationId are required for to move this folder");
+        }
+        FileService.updateFileObject({ fileId, destinationId }).then(({ error, data }) => {
+            if (error !== null) {
+                setAppError('Error :: creating this new file object', error);
+                return;
+            }
+            setAppError('');
+            const resultantList = state.listOfFiles.filter(it => it.fileId !== fileId);
+            console.log('<><>result before moving the file<><>', resultantList);
+            setContext({ listOfFiles: resultantList })
+        });
+    }
 
     // here we only re-create setContext when its dependencies change ([state, setState])
     const setContext = React.useCallback(
@@ -85,14 +121,16 @@ function AppContextProvider(props) {
     )
 
     React.useEffect(() => {
-        FileService.getListOfFiles({ currentPathId: state.rootPathId }).then(({ error, data }) => {
+        const currentPathId = location.pathname === "/" ? "root" : location.pathname.replace('/', '');
+        console.log(':: :: :: ', currentPathId, state.currentPath, state.parentPath, state.parentPathId);
+        FileService.getListOfFiles({ currentPathId }).then(({ error, data }) => {
             if (error !== null) {
                 setAppError('Error :: while fetching list of files');
                 return;
             }
             setContext({ listOfFiles: data });
         });
-    }, []);
+    }, [location.pathname]);
     return (
         <AppContext.Provider value={getContextValue()}>
             {isLoading ? <LoadingContainer>L o a d i n g . . .</LoadingContainer> : props.children}

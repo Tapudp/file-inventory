@@ -3,16 +3,14 @@ import AddContainer from './containers/AddContainer';
 import AppHeader from './containers/AppHeader';
 import FolderContainer from './containers/FolderContainer';
 import { AppContextProvider } from './context-store';
+import AppRoutes from './Routes';
 
 function App() {
   return (
-    <AppContextProvider>
-      <div className="App">
-        <AppHeader />
-        <AddContainer />
-        <FolderContainer />
-      </div>
-    </AppContextProvider>
+    <div className="App">
+      <AppHeader />
+      <AppRoutes />
+    </div>
   );
 }
 

@@ -10,12 +10,13 @@ import StyledFormField from '../components/StyledFormField';
 import StyledInput from '../components/StyledInput';
 import StyledSelect from '../components/StyledSelect';
 import ErrorBanner from '../components/ErrorBanner';
+import PathDetails from './PathDetails';
 
 const Wrapper = styled.div`
-    display: flex;
+    display: grid;
     padding: 10px 0px;
-    margin: 1px 4rem;
-    justify-content: flex-start;
+    margin: 1px 40px;
+    grid-template-columns: 1fr 1fr;
 `;
 
 const AddButton = styled.button`
@@ -24,6 +25,8 @@ const AddButton = styled.button`
     background-color: #8852CC;
     color: #fff;
     font-weight: 600;
+    justify-self: flex-end;
+    width: 15%;
 `;
 
 const SubmitButton = styled.button`
@@ -36,21 +39,12 @@ const SubmitButton = styled.button`
     margin: 20px 0 0 0;
 `;
 
-const PathWrapper = styled.div`
-    padding: 10px;
-    background-color: ${props => props.onClick ? '#BC5C5C' : '#C552CC'};
-    color: #fff;
-    font-weight: 600;
-    margin: 0 10px 0 0;
-    cursor: ${props => props.onClick ? 'pointer' : 'default'};
-`;
-
 export default function AddContainer() {
     const [show, toggle] = useState(false);
     const [err, setErr] = useState('');
     const [itemDetails, setItemDetails] = useState(() => DEFAULT_FILE_DETAILS);
 
-    const { listOfFiles, currentPath, currentPathId, rootPath, rootPathId, updatePathForUser, addFileToDrive } = useAppContext();
+    const { listOfFiles, currentPath, currentPathId, addFileToDrive } = useAppContext();
 
     const openModal = () => {
         toggle(true);
@@ -96,16 +90,13 @@ export default function AddContainer() {
     }
 
     return <Wrapper>
-        {currentPath !== rootPath &&
-            <PathWrapper
-                onClick={() => updatePathForUser(rootPath, rootPathId)}
-            >
-                {'<-'} Go back to root
-            </PathWrapper>
-        }
-        <PathWrapper>Current path : {currentPath === rootPath ? 'root' : currentPath}</PathWrapper>
+        <PathDetails />
         <AddButton onClick={openModal}>Add to drive</AddButton>
-        <Modal show={show} handleClose={closeModal}>
+        <Modal
+            show={show}
+            handleClose={closeModal}
+            title="Create a new object"
+        >
             <CreateObjectContainer>
                 <StyledFormField>
                     <label><h4>File Name</h4></label>

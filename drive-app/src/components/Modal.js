@@ -37,11 +37,13 @@ const ModalWrapper = styled.div`
     justify-content: space-between;
 
     & > button {
+      cursor: pointer;
       padding: 5px 10px;
-      font-weight: 900;
-      font-size: 20px;
+      font-weight: 600;
+      font-size: 18px;
       margin: 0 20px;
-      border: 2px solid #000;
+      border: 1px solid #E3735E;
+      border-radius: 15px;
       background-color: #E3735E;
       color: #fff;
       text-align: center;
@@ -49,7 +51,7 @@ const ModalWrapper = styled.div`
   }
 `;
 
-export default function Modal({ handleClose, show, children }) {
+export default function Modal({ handleClose, show, children, title }) {
   const showHideClassName = show ? "modal display-block" : "modal display-none";
 
   return (
@@ -57,8 +59,8 @@ export default function Modal({ handleClose, show, children }) {
       <div className={showHideClassName}>
         <section className="modal-main-content">
           <div className='closeBtnContainer'>
-            <h2>Create a new object</h2>
-            <button type="button" onClick={handleClose}>
+            <h2>{title}</h2>
+            <button className='close-btn' type="button" onClick={handleClose}>
               X
             </button>
           </div>

@@ -92,6 +92,27 @@ let FileService = {
             throw new Error('front-end service function might have some issue :: getListOfFiles', e)
         }
     },
+
+    async updateFileObject({ fileId = '', destinationId = '' }) {
+        try {
+            let response = await baseApiService({
+                url: `${fileAPIUrl}/files/update`,
+                method: 'PUT',
+                data: {
+                    fileId,
+                    destinationId
+                }
+            });
+
+            if (response.error !== null) {
+                throw new Error('There was an issue from service :: ', response.error);
+            }
+            return response;
+
+        } catch (e) {
+            throw new Error('front-end service function might have some issue :: getListOfFiles', e)
+        }
+    },
 }
 
 export default FileService;
