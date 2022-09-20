@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 
@@ -42,7 +42,7 @@ const SubmitButton = styled.button`
 export default function AddContainer() {
     const [show, toggle] = useState(false);
     const [err, setErr] = useState('');
-    const [itemDetails, setItemDetails] = useState(() => DEFAULT_FILE_DETAILS);
+    const [itemDetails, setItemDetails] = useState(() => ({ ...DEFAULT_FILE_DETAILS }));
 
     const { listOfFiles, currentPath, currentPathId, parentPath, parentPathId, addFileToDrive } = useAppContext();
 
@@ -52,7 +52,7 @@ export default function AddContainer() {
 
     const closeModal = () => {
         // To-Do: only delete items when the items are submitted
-        setItemDetails(() => DEFAULT_FILE_DETAILS);
+        setItemDetails(p => ({ ...DEFAULT_FILE_DETAILS }));
         toggle(false);
     }
 
@@ -66,12 +66,21 @@ export default function AddContainer() {
     const fileTypeChange = (e) => {
         if (e) e.stopPropagation();
         if (e.target.value === '') return;
-        setItemDetails(p => ({ ...p, fileType: e.target.value, isFolder: e.target.value.toString().toLowerCase() === 'folder' }))
+        setItemDetails(p => ({
+            ...p,
+            fileType: e.target.value,
+            isFolder: e.target.value.toString().toLowerCase() === 'folder'
+        }))
     }
 
     const submitNewObject = () => {
         if (!itemDetails.fileName || !itemDetails.fileType || !itemDetails.fileContent) {
             alert('All fields are required!!!');
+            return;
+        }
+
+        if (itemDetails.fileName === 'root' || itemDetails.fileContent === 'root') {
+            alert("Please try changing file name or content. root word singularly is not allowed!")
             return;
         }
         setErr('');
@@ -84,9 +93,9 @@ export default function AddContainer() {
         const newFileId = uuidv4();
         const fileDetailsToPush = {
             ...itemDetails,
-            parentName: parentPath,
+            parentName: currentPath,
             parentId: currentPathId,
-            newFileId
+            fileId: newFileId
         };
         setErr('');
         addFileToDrive(fileDetailsToPush);
@@ -112,7 +121,7 @@ export default function AddContainer() {
                 </StyledFormField>
                 <StyledFormField>
                     <label><h4>File Type</h4></label>
-                    <StyledSelect selected={itemDetails.fileType} onChange={fileTypeChange}>
+                    <StyledSelect defaultValue={''} value={itemDetails.fileType} onChange={fileTypeChange}>
                         <option value="">Select an object type</option>
                         {DEFAULT_OBJECT_TYPES.map((type, idx) => (
                             <option key={`${type}-${idx}`} value={type}>{type}</option>

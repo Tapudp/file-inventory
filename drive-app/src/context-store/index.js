@@ -78,7 +78,7 @@ function AppContextProvider(props) {
             }
             setAppError('');
             const newList = state.listOfFiles.concat(fileDetails);
-            setContext({ listOfFiles: newList.filter(it => it) });
+            setContext({ listOfFiles: newList });
         });
     };
 

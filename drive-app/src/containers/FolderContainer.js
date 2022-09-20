@@ -81,10 +81,20 @@ export default function FolderContainer() {
         return <FolderWrapper>Start creating new file/objects inside this folder</FolderWrapper>
     }
 
-    const folderList = filesToRender.filter(file => file.isFolder === true).concat({
-        fileId: parentPathId,
-        fileName: parentPath
-    })
+    let folderList = filesToRender.filter(file => file.isFolder === true)
+    if (parentPathId !== '') {
+        folderList = folderList.concat({
+            fileId: parentPathId,
+            fileName: parentPath
+        })
+    }
+
+    if (currentPathId !== 'root' && parentPathId !== 'root') {
+        folderList = folderList.concat({
+            fileId: 'root',
+            fileName: 'root'
+        })
+    }
 
     const changeDestination = (e) => {
         if (e) e.stopPropagation();

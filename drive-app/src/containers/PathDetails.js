@@ -16,6 +16,8 @@ const PathWrapper = styled.div`
     cursor: ${props => props.onClick ? 'pointer' : 'default'};
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
 `;
 
 export default function PathDetails({ }) {

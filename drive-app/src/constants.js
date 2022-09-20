@@ -3,7 +3,8 @@ export const DEFAULT_FILE_DETAILS = {
     fileName: '',
     fileContent: '',
     fileType: '',
-    parentPath: '/'
+    parentPath: '/',
+    isFolder: undefined
 };
 
 export const TEMPLATE_FILES = [

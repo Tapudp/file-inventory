@@ -27,7 +27,7 @@ router.get('/files', (req, res) => {
             console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err)
             res.status(500).json({ error: err, data: null });
         }
-        result.forEach((it, idx) => {
+        result = result.map((it, idx) => {
             return Object.assign({}, it, {
                 // isFolder: !!Number(response.isChecked), // OR
                 isFolder: Boolean(Number(it.isFolder))
@@ -52,18 +52,18 @@ router.get('/files', (req, res) => {
 
 router.post('/files/create', (req, res) => {
     console.log(':: ::', new Date().toISOString(), '>>>> /files/insert post route has been called', req.body);
-    if (!req.body || !req.body.fileName || !req.body.newFileId || !req.body.parentName) {
+    if (!req.body || !req.body.fileName || !req.body.fileId || !req.body.parentName) {
         res.status(400).json({
             error: {
-                message: 'fileName, isFolder, newFileId, parentName fields are required to process this query. One of them was missing.'
+                message: 'fileName, isFolder, fileId, parentName fields are required to process this query. One of them was missing.'
             }
         })
-        throw new Error('fileName, isFolder, newFileId, parentName fields are required to process this query. One of them was missing.');
+        throw new Error('fileName, isFolder, fileId, parentName fields are required to process this query. One of them was missing.');
     }
 
-    const { fileName, fileContent, isFolder, parentId, parentName, newFileId } = req.body;
+    const { fileName, fileContent, isFolder, parentId, parentName, fileId } = req.body;
 
-    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, parentName, fileId) VALUES ("${fileName.toString()}", "${fileContent.toString()}", ${isFolder}, "${parentId}", "${parentName.toString()}", "${newFileId}");`
+    const sqlInsert = `INSERT INTO drivefiles (fileName, fileContent, isFolder, parentId, parentName, fileId) VALUES ("${fileName.toString()}", "${fileContent.toString()}", ${isFolder}, "${parentId}", "${parentName.toString()}", "${fileId}");`
 
     db.query(sqlInsert, (err, result) => {
         if (err) {
@@ -76,7 +76,7 @@ router.post('/files/create', (req, res) => {
                 data: {
                     fileCreated: true,
                     fileDetails: {
-                        fileId: newFileId,
+                        fileId: fileId,
                         fileName,
                         fileContent,
                         isFolder,
