@@ -61,14 +61,7 @@ function AppContextProvider(props) {
         [state, setContext],
     )
 
-    const updatePathForUser = (path, pathId, parentName, parentId) => {
-        console.log(" <><> ", parentName, " <><> ", parentId);
-        setContext({
-            parentPath: parentName,
-            parentPathId: parentId,
-            currentPathId: pathId,
-            currentPath: path
-        })
+    const updatePathForUser = (pathId) => {
         navigate(pathId === 'root' ? '/' : `/${pathId}`)
     };
 
@@ -133,17 +126,9 @@ function AppContextProvider(props) {
                 return;
             }
 
-            if (state.parentPath !== '' && state.parentPathId !== '') {
-                setContext({ listOfFiles: data })
-                return;
-            }
-            if (data.length < 1) {
-                setContext({ listOfFiles: data, parentPath: state.currentPath, parentPathId: currentPathId });
-                return;
-            }
             setAppError('');
-            const { parentId, parentName } = data[0];
-            setContext({ listOfFiles: data, parentPath: '', parentPathId: '', currentPathId: parentId, currentPath: parentName });
+            const { parentId, parentName, fileId, fileName } = data;
+            setContext({ listOfFiles: data.childFiles, parentPath: parentName, parentPathId: parentId, currentPathId: fileId, currentPath: fileName });
         });
     }, [location.pathname]);
     return (

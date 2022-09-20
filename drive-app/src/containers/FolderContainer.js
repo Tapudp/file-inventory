@@ -109,7 +109,7 @@ export default function FolderContainer() {
                 filesToRender.map((file, fileIdx) => (
                     <div key={`${file.fileId}-${fileIdx}`}>
                         <Folder
-                            switchPath={() => updatePathForUser(file.fileName, file.fileId, file.parentName, file.parentId)}
+                            switchPath={() => updatePathForUser(file.fileId)}
                             {...file}
                         />
                         <DeleteBtnContainer>

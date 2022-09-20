@@ -35,7 +35,7 @@ export default function PathDetails({ }) {
             {
                 currentPathId !== rootPathId &&
                 <PathWrapper
-                    onClick={() => updatePathForUser(rootPath, rootPathId, '', '')}
+                    onClick={() => updatePathForUser(rootPathId)}
                 >
                     🏠 Go to root
                 </PathWrapper>
@@ -43,12 +43,7 @@ export default function PathDetails({ }) {
             {
                 parentPathId !== rootPathId && parentPath !== '' &&
                 <PathWrapper
-                    onClick={() => updatePathForUser(
-                        parentPath,
-                        parentPathId,
-                        '',
-                        ''
-                    )}
+                    onClick={() => updatePathForUser(parentPathId)}
                 >
                     Go up {parentPath}
                 </PathWrapper>

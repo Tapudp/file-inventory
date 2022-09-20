@@ -21,18 +21,30 @@ router.get('/files', (req, res) => {
     }
 
     // const derivedPathId = req.body.currentPathId === 'root' ? null : req.body.currentPathId
-    const sqlSelect = `SELECT * FROM drivefiles WHERE parentId = "${req.query.currentPathId}";`;
+    const sqlSelect = `SELECT * FROM drivefiles WHERE parentId = "${req.query.currentPathId}" OR fileId = "${req.query.currentPathId}";`;
     db.query(sqlSelect, (err, result) => {
         if (err) {
             console.error(':: ::', new Date().toISOString(), "<><>sql query failed<><>", err)
             res.status(500).json({ error: err, data: null });
         }
-        const finalResult = result.map((it, idx) => {
+        result.forEach((it, idx) => {
             return Object.assign({}, it, {
                 // isFolder: !!Number(response.isChecked), // OR
                 isFolder: Boolean(Number(it.isFolder))
             });
         })
+
+        const currentLevelDetails = result.filter(it => it.fileId === req.query.currentPathId)[0] ? result.filter(it => it.fileId === req.query.currentPathId)[0] : {
+            fileId: 'root',
+            fileName: 'root',
+            parentName: '',
+            parentId: ''
+        }
+
+        const finalResult = {
+            ...currentLevelDetails,
+            childFiles: result.filter(it => it.fileId !== req.query.currentPathId)
+        }
         console.log(':: ::', new Date().toISOString(), "<><> made this query <><>", sqlSelect, finalResult);
         res.status(200).json({ error: null, data: finalResult });
     });
